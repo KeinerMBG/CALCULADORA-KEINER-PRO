@@ -4,10 +4,197 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keiner Calc Pro</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <meta name="theme-color" content="#6750A4">
+    <style>
+        :root {
+            /* Tema Claro */
+            --background-color: #F8F9FA;
+            --on-surface-color: #1A1C1E;
+            --surface-container-color: #EFEFEF;
+            --primary-color: #6750A4;
+            --on-primary-color: #FFFFFF;
+            --accent-color: #C0A4FF;
+            --on-accent-color: #381E72;
+            --operator-color: #FFB4AB;
+            --on-operator-color: #690005;
+        }
+
+        :root.dark {
+            /* Tema Oscuro */
+            --background-color: #1A1C1E;
+            --on-surface-color: #E3E2E6;
+            --surface-container-color: #2F3034;
+            --primary-color: #D0BCFF;
+            --on-primary-color: #381E72;
+            --accent-color: #8C6AFF;
+            --on-accent-color: #FFFFFF;
+            --operator-color: #FFB4AB;
+            --on-operator-color: #690005;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--on-surface-color);
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            transition: background-color 0.3s ease;
+        }
+
+        .calculator {
+            width: 350px;
+            background-color: var(--surface-container-color);
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: relative;
+        }
+
+        .theme-toggle-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        .theme-toggle-btn {
+            font-size: 24px;
+            color: var(--on-surface-color);
+            user-select: none;
+        }
+
+        .display {
+            text-align: right;
+            padding: 20px;
+            border-radius: 12px;
+            background-color: var(--background-color);
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .result-display {
+            font-size: 3em;
+            font-weight: 300;
+            color: var(--on-surface-color);
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .btn {
+            font-size: 1.5em;
+            padding: 20px;
+            border: none;
+            border-radius: 16px;
+            background-color: var(--background-color);
+            color: var(--on-surface-color);
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            user-select: none;
+        }
+
+        .btn:hover {
+            filter: brightness(0.95);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn.accent {
+            background-color: var(--accent-color);
+            color: var(--on-accent-color);
+        }
+
+        .btn.operator {
+            background-color: var(--operator-color);
+            color: var(--on-operator-color);
+        }
+
+        .btn.equals {
+            grid-column: span 2;
+            background-color: var(--primary-color);
+            color: var(--on-primary-color);
+        }
+        
+        .btn.gemini {
+            background-color: #00796B;
+            color: #FFFFFF;
+        }
+
+        .btn.zero {
+            grid-column: span 2;
+        }
+
+        /* Contenedor para la explicación de la IA */
+        .explanation-container {
+            margin-top: 16px;
+            padding: 16px;
+            background-color: var(--background-color);
+            border-radius: 12px;
+            border: 1px solid var(--on-surface-color);
+            font-size: 0.9em;
+            line-height: 1.5;
+            display: none; /* Oculto por defecto */
+        }
+        
+        .explanation-container.visible {
+            display: block;
+        }
+
+        /* Ajustes de responsividad */
+        @media (max-width: 480px) {
+            .calculator {
+                width: 100%;
+                max-width: 400px;
+                height: 100vh;
+                border-radius: 0;
+                box-shadow: none;
+                padding: 16px;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+            }
+            
+            body {
+                align-items: flex-end;
+            }
+
+            .display {
+                flex-grow: 1;
+                display: flex;
+                align-items: flex-end;
+                padding: 0 16px;
+            }
+
+            .result-display {
+                font-size: 4em;
+            }
+
+            .buttons {
+                gap: 8px;
+            }
+
+            .btn {
+                font-size: 1.2em;
+                padding: 18px;
+            }
+
+            .theme-toggle-container {
+                top: 20px;
+                right: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="calculator">
@@ -39,8 +226,205 @@
             <button class="btn zero">0</button>
             <button class="btn">.</button>
             <button class="btn equals operator">=</button>
+            <!-- Nuevo botón para la función de IA -->
+            <button class="btn gemini" id="explain-btn">Explicar ✨</button>
+        </div>
+        <!-- Nuevo contenedor para la explicación de la IA -->
+        <div class="explanation-container" id="explanation-box">
+            <div id="explanation-text"></div>
+            <div id="loading-indicator" style="display: none;">Cargando...</div>
         </div>
     </div>
-    <script src="app.js"></script>
+    <script>
+        const resultDisplay = document.querySelector('.result-display');
+        const buttons = document.querySelectorAll('.btn');
+        const themeToggleBtn = document.querySelector('.theme-toggle-btn');
+        const explainBtn = document.getElementById('explain-btn');
+        const explanationBox = document.getElementById('explanation-box');
+        const explanationText = document.getElementById('explanation-text');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        
+        let currentInput = '';
+        let firstOperand = null;
+        let operator = null;
+        let expectingSecondOperand = false;
+        let calculationHistory = []; // Almacena la secuencia de la operación
+        let lastResult = null; // Almacena el último resultado para explicarlo
+
+        function updateDisplay() {
+            if (currentInput === '') {
+                resultDisplay.textContent = '0';
+            } else {
+                resultDisplay.textContent = currentInput;
+            }
+        }
+
+        function handleNumber(number) {
+            if (expectingSecondOperand) {
+                currentInput = number;
+                expectingSecondOperand = false;
+            } else {
+                currentInput = currentInput === '0' ? number : currentInput + number;
+            }
+            // Agregamos el número al historial de la operación
+            if (calculationHistory.length === 0 || typeof calculationHistory[calculationHistory.length - 1] === 'string') {
+                calculationHistory.push(number);
+            } else {
+                calculationHistory[calculationHistory.length - 1] += number;
+            }
+            updateDisplay();
+        }
+
+        function handleOperator(nextOperator) {
+            const inputValue = parseFloat(currentInput);
+
+            if (operator && expectingSecondOperand) {
+                operator = nextOperator;
+                // Si el operador cambia, actualizamos el historial
+                calculationHistory[calculationHistory.length - 1] = nextOperator;
+                return;
+            }
+
+            if (firstOperand === null) {
+                firstOperand = inputValue;
+            } else if (operator) {
+                const result = calculate(firstOperand, inputValue, operator);
+                currentInput = String(result);
+                firstOperand = result;
+            }
+            
+            expectingSecondOperand = true;
+            operator = nextOperator;
+            // Agregamos el operador al historial
+            calculationHistory.push(nextOperator);
+            updateDisplay();
+        }
+
+        function calculate(first, second, op) {
+            if (op === '+') return first + second;
+            if (op === '-') return first - second;
+            if (op === '*') return first * second;
+            if (op === '/') return first / second;
+            if (op === '%') return first % second;
+            return second;
+        }
+
+        function handleEquals() {
+            const inputValue = parseFloat(currentInput);
+            if (operator && firstOperand !== null) {
+                const result = calculate(firstOperand, inputValue, operator);
+                currentInput = String(result);
+                lastResult = `${calculationHistory.join(' ')} = ${result}`;
+                firstOperand = result;
+                operator = null;
+                expectingSecondOperand = false;
+                calculationHistory = [currentInput]; // Reiniciamos el historial con el resultado
+                updateDisplay();
+            }
+        }
+
+        function handleClear() {
+            currentInput = '';
+            firstOperand = null;
+            operator = null;
+            expectingSecondOperand = false;
+            calculationHistory = []; // Limpiamos el historial
+            lastResult = null;
+            explanationBox.classList.remove('visible');
+            updateDisplay();
+        }
+
+        function handleSign() {
+            currentInput = String(parseFloat(currentInput) * -1);
+            if (calculationHistory.length > 0) {
+                calculationHistory[calculationHistory.length - 1] = currentInput;
+            }
+            updateDisplay();
+        }
+
+        buttons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const value = e.target.textContent;
+
+                if (!isNaN(parseFloat(value)) || value === '.') {
+                    handleNumber(value);
+                } else if (value === 'AC') {
+                    handleClear();
+                } else if (value === '+/-') {
+                    handleSign();
+                } else if (value === '=') {
+                    handleEquals();
+                } else if (value.includes('Explicar')) {
+                    // Ignoramos el botón de explicar en la lógica de la calculadora
+                    return;
+                } else {
+                    handleOperator(value);
+                }
+            });
+        });
+
+        // Lógica para cambiar el tema
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            if (document.documentElement.classList.contains('dark')) {
+                themeToggleBtn.textContent = 'light_mode';
+            } else {
+                themeToggleBtn.textContent = 'dark_mode';
+            }
+        });
+
+        // --- Lógica de IA con la API de Gemini ---
+        explainBtn.addEventListener('click', async () => {
+            if (!lastResult) {
+                explanationText.textContent = "Realiza un cálculo primero para que lo pueda explicar.";
+                explanationBox.classList.add('visible');
+                return;
+            }
+
+            // Muestra el indicador de carga
+            loadingIndicator.style.display = 'block';
+            explanationBox.classList.add('visible');
+            explanationText.textContent = ''; // Limpia el texto anterior
+
+            const prompt = `Explica la siguiente operación matemática de manera clara y paso a paso. La operación es: ${lastResult}.`;
+            const payload = {
+                contents: [{
+                    parts: [{
+                        text: prompt
+                    }]
+                }],
+            };
+            
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API response error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                // Extrae el texto de la respuesta de la IA
+                const text = result?.candidates?.[0]?.content?.parts?.[0]?.text || "No se pudo generar una explicación.";
+                
+                explanationText.textContent = text;
+
+            } catch (error) {
+                explanationText.textContent = "Ocurrió un error al conectar con la IA. Inténtalo de nuevo.";
+                console.error('Error fetching from Gemini API:', error);
+            } finally {
+                loadingIndicator.style.display = 'none'; // Oculta el indicador de carga
+            }
+        });
+
+        updateDisplay();
+    </script>
 </body>
 </html>
